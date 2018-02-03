@@ -10,8 +10,8 @@
 extern bool terminateComm;
 extern void __cdecl _translateSEH(unsigned int, EXCEPTION_POINTERS*);
 
-int masterDevIdx = 2;
-int slaveDevIdx = 0;
+int masterDevIdx = 3;
+int slaveDevIdx = 1;
 
 static const coord_t INIT_LON = (coord_t)42.5;
 static const coord_t INIT_LAT = (coord_t)101.1;
@@ -83,8 +83,8 @@ static DWORD WINAPI ftTransmitTest(LPVOID)
 		DWORD numOfDevices = 0;
 		if (FT_CreateDeviceInfoList(&numOfDevices) != FT_OK)
 			throw "FT_CreateDeviceInfoList failed";
-		if (numOfDevices < 3)
-			throw "Device not found";
+		if ((int)numOfDevices <= masterDevIdx)
+			throw "Master not found";
 
 		FT_DEVICE_LIST_INFO_NODE devInfo;
 		memset(&devInfo, 0, sizeof(devInfo));
@@ -155,6 +155,8 @@ static DWORD WINAPI ftRecv(LPVOID)
 		DWORD numOfDevices = 0;
 		if (FT_CreateDeviceInfoList(&numOfDevices) != FT_OK)
 			throw "FT_CreateDeviceInfoList failed";
+		if ((int)numOfDevices <= slaveDevIdx)
+			throw "Slave not found";
 
 		FT_DEVICE_LIST_INFO_NODE devInfo = { 0 };
 
@@ -264,6 +266,9 @@ int listFtUsbDevices(char* s)
 
 HANDLE revcFT4222()
 {
-	CloseHandle(CreateThread(NULL, 0, ftTransmitTest, 0, 0, NULL));
+	if(masterDevIdx >= 0)
+		CloseHandle(CreateThread(NULL, 0, ftTransmitTest, 0, 0, NULL));
+	if(slaveDevIdx < 0)
+		return NULL;
 	return CreateThread(NULL, 0, ftRecv, 0, 0, NULL);
 }
