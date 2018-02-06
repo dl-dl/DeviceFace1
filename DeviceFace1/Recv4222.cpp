@@ -21,7 +21,7 @@ static void ShowMessage(_In_z_ const char* text)
 	MessageBoxA(NULL, text, "FT4222 Interface", MB_OK);
 }
 
-static void getNewPosTest(_In_ PositionRawData* pt)
+static void getNewPosTest(_Out_ PositionRawData* pt)
 {
 	const int PRIME1 = 281;
 	const int PRIME2 = 283;
@@ -33,12 +33,12 @@ static void getNewPosTest(_In_ PositionRawData* pt)
 	pt->time = GetTickCount();
 }
 
-static void getNewCompassTest(_In_ CompassRawData* pt)
+static void getNewCompassTest(_Out_ CompassRawData* pt)
 {
 	pt->dir = (GetTickCount() / 1000) % 360;
 }
 
-static void generateSpiMsgTest(_In_ SpiMsg* msg)
+static void generateSpiMsgTest(_Out_ SpiMsg* msg)
 {
 	static int cnt = 0;
 	++cnt;
