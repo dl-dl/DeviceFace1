@@ -226,13 +226,14 @@ static DWORD WINAPI ftRecv(LPVOID)
 	return 0;
 }
 
-static std::string deviceFlagToString(DWORD flags)
+static const char* deviceFlag1ToString(DWORD flags)
 {
-	std::string msg;
-	msg += (flags & 0x1) ? "DEVICE_OPEN" : "DEVICE_CLOSED";
-	msg += ", ";
-	msg += (flags & 0x2) ? "High-speed USB" : "Full-speed USB";
-	return msg;
+	return (flags & 0x1) ? "DEVICE_OPEN" : "DEVICE_CLOSED";
+}
+
+static const char* deviceFlag2ToString(DWORD flags)
+{
+	return (flags & 0x2) ? "High-speed USB" : "Full-speed USB";
 }
 
 int listFtUsbDevices(char* s)
@@ -250,14 +251,14 @@ int listFtUsbDevices(char* s)
 
 		if (FT_OK == ftStatus)
 		{
-			s += sprintf_s(s, 128, "Dev %d:\r\n", iDev);
-			s += sprintf_s(s, 128, "  Flags= 0x%x, (%s)\r\n", devInfo.Flags, deviceFlagToString(devInfo.Flags).c_str());
-			s += sprintf_s(s, 128, "  Type= 0x%x    ", devInfo.Type);
-			s += sprintf_s(s, 128, "  ID= 0x%x    ", devInfo.ID);
-			s += sprintf_s(s, 128, "  LocId= 0x%X    ", devInfo.LocId);
-//			s += sprintf_s(s, 128, "  SerialNumber= %s     ", devInfo.SerialNumber);
-			s += sprintf_s(s, 128, "  Description= %s\r\n", devInfo.Description);
-//			s += sprintf_s(s, 128, "  ftHandle= 0x%x\r\n", (int)devInfo.ftHandle);
+			s += wsprintfA(s, "Dev %d:\r\n", iDev);
+			s += wsprintfA(s, "  Flags= 0x%x, (%s, %s)\r\n", devInfo.Flags, deviceFlag1ToString(devInfo.Flags), deviceFlag2ToString(devInfo.Flags));
+			s += wsprintfA(s, "  Type= 0x%x    ", devInfo.Type);
+			s += wsprintfA(s, "  ID= 0x%x    ", devInfo.ID);
+			s += wsprintfA(s, "  LocId= 0x%X    ", devInfo.LocId);
+//			s += wsprintfA(s, "  SerialNumber= %s     ", devInfo.SerialNumber);
+			s += wsprintfA(s, "  Description= %s\r\n", devInfo.Description);
+//			s += wsprintfA(s, "  ftHandle= 0x%x\r\n", (int)devInfo.ftHandle);
 		}
 	}
 	return numOfDevices;
